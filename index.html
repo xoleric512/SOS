@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ro'yxatdan O'tish</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            margin: 0; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .container { 
+            width: 100%;
+            max-width: 400px; 
+            padding: 30px; 
+            background: white;
+            border-radius: 12px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        h2 { 
+            text-align: center; 
+            margin-bottom: 25px;
+            color: #333;
+            font-size: 28px;
+        }
+        
+        .form-group { 
+            margin-bottom: 20px; 
+        }
+        
+        label { 
+            display: block; 
+            margin-bottom: 8px; 
+            font-weight: 600;
+            color: #555;
+            font-size: 14px;
+        }
+        
+        input { 
+            width: 100%; 
+            padding: 12px 15px; 
+            border: 2px solid #e1e5e9; 
+            border-radius: 8px; 
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        input:focus {
+            border-color: #007bff;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+        }
+        
+        button { 
+            width: 100%; 
+            padding: 14px; 
+            background: #007bff; 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        
+        button:hover { 
+            background: #0056b3; 
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,123,255,0.3);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .error {
+            color: #dc3545;
+            font-size: 13px;
+            margin-top: 6px;
+            display: none;
+            font-weight: 500;
+        }
+        
+        .success {
+            color: #28a745;
+            text-align: center;
+            margin-top: 20px;
+            padding: 12px;
+            background: #d4edda;
+            border-radius: 6px;
+            display: none;
+            font-weight: 500;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 15px 0;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #007bff;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .info-text {
+            text-align: center;
+            color: #6c757d;
+            font-size: 14px;
+            margin-top: 25px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Ro'yxatdan O'tish</h2>
+        <form id="registerForm">
+            <div class="form-group">
+                <label for="name">Ism</label>
+                <input type="text" id="name" placeholder="Ismingizni kiriting" required>
+                <div class="error" id="nameError"></div>
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" placeholder="Elektron pochtangiz" required>
+                <div class="error" id="emailError"></div>
+            </div>
+            <div class="form-group">
+                <label for="password">Parol</label>
+                <input type="password" id="password" placeholder="Parol yarating (kamida 6 belgi)" required minlength="6">
+                <div class="error" id="passwordError"></div>
+            </div>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p style="margin-top: 10px;">Ma'lumotlar yuborilmoqda...</p>
+            </div>
+            
+            <button type="submit" id="submitBtn">Ro'yxatdan O'tish</button>
+            <div class="success" id="successMessage">Muvaffaqiyatli ro'yxatdan o'tdingiz!</div>
+        </form>
+        
+        <div class="info-text">
+            Ma'lumotlaringiz xavfsizligi kafolatlangan. 
+            Ro'yxatdan o'tganingizdan so'ng siz bilan bog'lanamiz.
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Yuborish tugmasini va loadingni sozlash
+            const submitBtn = document.getElementById('submitBtn');
+            const loading = document.getElementById('loading');
+            submitBtn.disabled = true;
+            loading.style.display = 'block';
+            
+            // Xatoliklarni tozalash
+            document.querySelectorAll('.error').forEach(el => {
+                el.style.display = 'none';
+                el.textContent = '';
+            });
+            
+            // Muvaffaqiyat xabarini yashirish
+            document.getElementById('successMessage').style.display = 'none';
+            
+            // Ma'lumotlarni olish
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            
+            let isValid = true;
+            
+            // Validatsiya
+            if (name.length < 2) {
+                document.getElementById('nameError').textContent = 'Ism kamida 2 ta belgidan iborat bo\'lishi kerak';
+                document.getElementById('nameError').style.display = 'block';
+                isValid = false;
+            }
+            
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                document.getElementById('emailError').textContent = 'Iltimos, to\'g\'ri email manzilini kiriting';
+                document.getElementById('emailError').style.display = 'block';
+                isValid = false;
+            }
+            
+            if (password.length < 6) {
+                document.getElementById('passwordError').textContent = 'Parol kamida 6 ta belgidan iborat bo\'lishi kerak';
+                document.getElementById('passwordError').style.display = 'block';
+                isValid = false;
+            }
+            
+            if (!isValid) {
+                submitBtn.disabled = false;
+                loading.style.display = 'none';
+                return;
+            }
+            
+            try {
+                // Backend-ga so'rov yuborish
+                const response = await fetch('http://localhost:3000/send-message', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ name, email, password }),
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    // Muvaffaqiyatli yuborildi
+                    document.getElementById('successMessage').style.display = 'block';
+                    document.getElementById('registerForm').reset();
+                    
+                    // 5 soniyadan so'ng xabarni yashirish
+                    setTimeout(() => {
+                        document.getElementById('successMessage').style.display = 'none';
+                    }, 5000);
+                } else {
+                    throw new Error(result.error || 'Server xatosi');
+                }
+            } catch (error) {
+                console.error('Xatolik:', error);
+                alert('Ma\'lumotlarni yuborishda xatolik yuz berdi. Iltimos, internet aloqangizni tekshiring va qaytadan urinib ko\'ring.');
+            } finally {
+                // Tugmani qayta faollashtirish
+                submitBtn.disabled = false;
+                loading.style.display = 'none';
+            }
+        });
+        
+        // Forma elementlariga real-time validatsiya qo'shish
+        document.getElementById('name').addEventListener('blur', function() {
+            if (this.value.trim().length < 2 && this.value.trim().length > 0) {
+                document.getElementById('nameError').textContent = 'Ism kamida 2 ta belgidan iborat bo\'lishi kerak';
+                document.getElementById('nameError').style.display = 'block';
+            } else {
+                document.getElementById('nameError').style.display = 'none';
+            }
+        });
+        
+        document.getElementById('email').addEventListener('blur', function() {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(this.value.trim()) && this.value.trim().length > 0) {
+                document.getElementById('emailError').textContent = 'Iltimos, to\'g\'ri email manzilini kiriting';
+                document.getElementById('emailError').style.display = 'block';
+            } else {
+                document.getElementById('emailError').style.display = 'none';
+            }
+        });
+        
+        document.getElementById('password').addEventListener('blur', function() {
+            if (this.value.length < 6 && this.value.length > 0) {
+                document.getElementById('passwordError').textContent = 'Parol kamida 6 ta belgidan iborat bo\'lishi kerak';
+                document.getElementById('passwordError').style.display = 'block';
+            } else {
+                document.getElementById('passwordError').style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
